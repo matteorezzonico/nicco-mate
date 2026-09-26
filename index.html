@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Esercizi Nicco">
+<title>Esercizi per Nicco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --paper: #FAFBFC;
+    --grid: #DCE6F0;
+    --ink: #1D3585;
+    --ink-soft: #5A6A99;
+    --card: #FFFFFF;
+    --line: #C9D5E3;
+    --key: #EEF2F8;
+    --key-press: #DCE4F0;
+    --ok: #1F7A4D;
+    --ok-bg: #E3F4EA;
+    --ko: #B8323C;
+    --ko-bg: #FBE7E8;
+    --accent: #1D3585;
+    --on-accent: #FFFFFF;
+    --shadow: 0 1px 2px rgba(29,53,133,.08), 0 6px 20px rgba(29,53,133,.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #141A26; --grid: #1F2838; --ink: #DCE5FF; --ink-soft: #93A2C7;
+      --card: #1B2332; --line: #2E3A50; --key: #253047; --key-press: #33405C;
+      --ok: #6FD39C; --ok-bg: #173327; --ko: #FF8A91; --ko-bg: #3A1D22;
+      --accent: #8FA8FF; --on-accent: #0F1522;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #141A26; --grid: #1F2838; --ink: #DCE5FF; --ink-soft: #93A2C7;
+    --card: #1B2332; --line: #2E3A50; --key: #253047; --key-press: #33405C;
+    --ok: #6FD39C; --ok-bg: #173327; --ko: #FF8A91; --ko-bg: #3A1D22;
+    --accent: #8FA8FF; --on-accent: #0F1522;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { min-height: 100%; }
+  body {
+    margin: 0;
+    font-family: "Lexend", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none; user-select: none;
+    touch-action: manipulation;
+  }
+  .wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 20px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  header {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+  }
+  h1 { margin: 0; font-size: 1.9rem; font-weight: 600; letter-spacing: -0.01em; }
+  h1 small { display: block; font-size: .85rem; font-weight: 400; color: var(--ink-soft); letter-spacing: 0; margin-top: 2px; }
+  .goal {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    padding: 18px 22px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .goal-top {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 8px 16px; flex-wrap: wrap;
+  }
+  .goal-count {
+    font-size: 1.6rem; font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .goal-count span { font-size: 1rem; font-weight: 400; color: var(--ink-soft); }
+  .goal-sub { font-size: .95rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .goal-sub b { color: var(--ink); font-weight: 600; }
+  .bar {
+    display: grid;
+    grid-template-columns: repeat(20, 1fr);
+    gap: 3px;
+    height: 24px;
+  }
+  .bar i {
+    background: var(--key);
+    transition: background-color .3s;
+  }
+  .bar i:first-child { border-radius: 999px 4px 4px 999px; }
+  .bar i:last-child { border-radius: 4px 999px 999px 4px; }
+  .bar i.ok { background: var(--ok); }
+  .bar i.ko { background: var(--ko); }
+  .goal.done .goal-count { color: var(--ok); }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: .9rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend span::before { content: ""; width: 12px; height: 12px; border-radius: 3px; background: var(--dot); }
+  .legend b { color: var(--ink); font-weight: 600; }
+  @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+
+  main {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    main { grid-template-columns: 1.35fr 1fr; }
+  }
+
+  .sheet {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    padding: 28px 24px;
+    display: flex; flex-direction: column; gap: 24px;
+    min-width: 0;
+  }
+  .label { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); }
+  .expr {
+    display: flex; align-items: center; justify-content: center;
+    flex-wrap: wrap; gap: .15em;
+    font-size: clamp(2.4rem, 7vw, 4.2rem);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+    padding-block: 8px;
+  }
+  .expr .op { padding-inline: .15em; color: var(--ink-soft); }
+  .expr .num { white-space: nowrap; }
+  .answer {
+    min-width: 3.2em;
+    border-bottom: 4px solid var(--accent);
+    text-align: center;
+    padding-inline: .15em;
+    color: var(--ink);
+    transition: border-color .15s, color .15s;
+  }
+  .answer.empty::after { content: "?"; color: var(--line); }
+  .answer.ok { border-color: var(--ok); color: var(--ok); }
+  .answer.ko { border-color: var(--ko); color: var(--ko); }
+  .caret { display: inline-block; width: 3px; height: .9em; background: var(--accent); vertical-align: -0.08em; margin-left: 2px; animation: blink 1s steps(1) infinite; }
+  .answer.ok .caret, .answer.ko .caret { display: none; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .feedback {
+    min-height: 64px;
+    border-radius: 14px;
+    padding: 14px 18px;
+    font-size: 1.15rem;
+    display: flex; align-items: center; gap: 12px;
+    background: var(--key); color: var(--ink-soft);
+  }
+  .feedback.ok { background: var(--ok-bg); color: var(--ok); }
+  .feedback.ko { background: var(--ko-bg); color: var(--ko); }
+  .feedback .mark { font-size: 1.6rem; font-weight: 700; line-height: 1; }
+  .feedback .tip { font-size: .95rem; opacity: .9; margin-top: 2px; }
+
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    font: inherit; font-size: 1.1rem; font-weight: 500;
+    border-radius: 14px; border: 1px solid var(--line);
+    background: var(--card); color: var(--ink);
+    padding: 14px 20px; min-height: 56px; cursor: pointer;
+  }
+  .btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); flex: 1; }
+  .btn:active { transform: translateY(1px); }
+  .btn:focus-visible, .key:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .pad {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .key {
+    font: inherit; font-size: 1.9rem; font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    min-height: 72px;
+    border: none; border-radius: 14px;
+    background: var(--key); color: var(--ink);
+    cursor: pointer;
+  }
+  .key:active { background: var(--key-press); }
+  .key.sign { font-size: 1.3rem; }
+  .key.del { font-size: 1.5rem; color: var(--ink-soft); }
+  .key.check {
+    grid-column: 1 / -1;
+    background: var(--accent); color: var(--on-accent);
+    font-size: 1.35rem; font-weight: 600;
+  }
+  .key:disabled { opacity: .4; cursor: default; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .caret { animation: none; }
+  }
+</style>
+
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Esercizi per Nicco</h1>
+  </header>
+
+  <section class="goal" id="goal" aria-label="Obiettivo di oggi">
+    <div class="goal-top">
+      <div class="goal-count"><span id="goalLabel">Oggi</span> <b id="doneCount">0</b> / 20</div>
+      <div class="legend">
+        <span style="--dot: var(--ok)">Giuste al primo tentativo: <b id="okCount">0</b></span>
+        <span style="--dot: var(--ko)">Sbagliate al primo tentativo: <b id="koCount">0</b></span>
+      </div>
+    </div>
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0" id="bar"></div>
+  </section>
+
+  <main>
+    <section class="sheet" aria-live="polite">
+      <div class="label">Calcola</div>
+      <div class="expr" id="expr" aria-label="Esercizio"></div>
+      <div class="feedback" id="feedback">Scrivi il risultato con i tasti e premi Verifica.</div>
+      <div class="actions">
+        <button class="btn" id="solutionBtn" type="button" hidden>Mostra la soluzione</button>
+        <button class="btn primary" id="nextBtn" type="button">Nuovo esercizio</button>
+      </div>
+    </section>
+
+    <section class="pad" aria-label="Tastierino">
+      <button class="key" type="button" data-k="7">7</button>
+      <button class="key" type="button" data-k="8">8</button>
+      <button class="key" type="button" data-k="9">9</button>
+      <button class="key" type="button" data-k="4">4</button>
+      <button class="key" type="button" data-k="5">5</button>
+      <button class="key" type="button" data-k="6">6</button>
+      <button class="key" type="button" data-k="1">1</button>
+      <button class="key" type="button" data-k="2">2</button>
+      <button class="key" type="button" data-k="3">3</button>
+      <button class="key sign" type="button" data-k="sign" aria-label="Cambia segno">+ / −</button>
+      <button class="key" type="button" data-k="0">0</button>
+      <button class="key del" type="button" data-k="del" aria-label="Cancella">⌫</button>
+      <button class="key check" type="button" data-k="check" id="checkKey">Verifica</button>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  const MIN = -20, MAX = 20;
+  const MINUS = "−";
+  const $ = (id) => document.getElementById(id);
+
+  let a, b, op, result;
+  let sign = "";      // "", "+", "-"
+  let digits = "";
+  let state = "input"; // input | wrong | done
+  let tries = 0;
+
+  // Obiettivo giornaliero: 20 calcoli risolti, si azzera ogni giorno
+  const GOAL = 20;
+  const KEY = "nicco-daily-v2";
+  const today = () => {
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  };
+  // results: un elemento per esercizio, "ok" o "ko" in base al primo tentativo
+  let day = { date: today(), results: [] };
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (saved && saved.date === day.date && Array.isArray(saved.results)) {
+      day = { date: saved.date, results: saved.results.filter(r => r === "ok" || r === "ko") };
+    }
+  } catch (e) {}
+
+  function saveDay() {
+    try { localStorage.setItem(KEY, JSON.stringify(day)); } catch (e) {}
+  }
+  function rollDay() {
+    // Se la pagina resta aperta oltre la mezzanotte, riparte da zero
+    const t = today();
+    if (day.date !== t) { day = { date: t, results: [] }; saveDay(); }
+  }
+  function renderGoal() {
+    rollDay();
+    const done = day.results.length;
+    const okN = day.results.filter(r => r === "ok").length;
+    $("bar").querySelectorAll("i").forEach((cell, i) => {
+      cell.className = day.results[i] || "";
+    });
+    $("bar").setAttribute("aria-valuenow", Math.min(done, GOAL));
+    $("doneCount").textContent = done;
+    $("okCount").textContent = okN;
+    $("koCount").textContent = done - okN;
+    const reached = done >= GOAL;
+    $("goal").classList.toggle("done", reached);
+    $("goalLabel").textContent = reached ? "Obiettivo raggiunto!" : "Oggi";
+  }
+
+  const rnd = () => Math.floor(Math.random() * (MAX - MIN + 1)) + MIN;
+  const fmt = (n) => n > 0 ? "+" + n : n < 0 ? MINUS + Math.abs(n) : "0";
+  const fmtParen = (n) => "(" + fmt(n) + ")";
+
+  function newExercise() {
+    a = rnd(); b = rnd();
+    op = Math.random() < 0.5 ? "+" : "-";
+    result = op === "+" ? a + b : a - b;
+    sign = ""; digits = ""; state = "input"; tries = 0;
+    $("solutionBtn").hidden = true;
+    setFeedback("", "Scrivi il risultato con i tasti e premi Verifica.");
+    render();
+  }
+
+  function typedValue() {
+    if (digits === "") return null;
+    const n = parseInt(digits, 10);
+    return sign === "-" ? -n : n;
+  }
+
+  function render() {
+    const opSym = op === "+" ? "+" : MINUS;
+    const shown = (sign === "-" ? MINUS : sign === "+" ? "+" : "") + digits;
+    let cls = "answer";
+    if (!shown) cls += " empty";
+    if (state === "done") cls += " ok";
+    if (state === "wrong") cls += " ko";
+    const caret = state === "done" ? "" : '<span class="caret"></span>';
+    $("expr").innerHTML =
+      '<span class="num">' + fmtParen(a) + '</span>' +
+      '<span class="op">' + opSym + '</span>' +
+      '<span class="num">' + fmtParen(b) + '</span>' +
+      '<span class="op">=</span>' +
+      '<span class="' + cls + '">' + shown + caret + '</span>';
+    document.querySelectorAll(".pad .key").forEach(k => k.disabled = state === "done");
+  }
+
+  function setFeedback(kind, main, tip) {
+    const el = $("feedback");
+    el.className = "feedback" + (kind ? " " + kind : "");
+    const mark = kind === "ok" ? '<span class="mark">✓</span>' : kind === "ko" ? '<span class="mark">✗</span>' : "";
+    el.innerHTML = mark + '<div><div>' + main + '</div>' + (tip ? '<div class="tip">' + tip + '</div>' : "") + '</div>';
+  }
+
+  function hint() {
+    // Trasforma la sottrazione in addizione dell'opposto
+    if (op === "-") {
+      return "Ricorda: togliere " + fmtParen(b) + " è come aggiungere " + fmtParen(-b) + ".";
+    }
+    if ((a >= 0) === (b >= 0)) return "Stesso segno: somma i valori assoluti e tieni il segno.";
+    return "Segni diversi: fai la differenza dei valori assoluti e prendi il segno del numero più grande (in valore assoluto).";
+  }
+
+  function check() {
+    if (state === "done") return;
+    const v = typedValue();
+    if (v === null) { setFeedback("", "Prima scrivi un numero."); return; }
+    tries++;
+    if (tries === 1) {
+      // Il primo tentativo decide il colore della tacca, anche se poi si passa oltre
+      rollDay();
+      day.results.push(v === result ? "ok" : "ko");
+      saveDay();
+    }
+    if (v === result) {
+      state = "done";
+      const done = day.results.length;
+      let tip = "Tocca Nuovo esercizio per continuare.";
+      if (tries === 1 && done === GOAL) tip = "Hai fatto i 20 calcoli di oggi. Bravissimo!";
+      else if (done < GOAL) tip = "Ne mancano " + (GOAL - done) + " per oggi.";
+      setFeedback("ok", tries === 1 ? "Giusto!" : "Giusto, ce l'hai fatta!", tip);
+      $("solutionBtn").hidden = true;
+    } else {
+      state = "wrong";
+      setFeedback("ko", "Non è giusto. Riprova!", hint());
+      $("solutionBtn").hidden = false;
+    }
+    renderGoal();
+    render();
+  }
+
+  function showSolution() {
+    if (state === "done") return;
+    sign = result < 0 ? "-" : result > 0 ? "+" : "";
+    digits = String(Math.abs(result));
+    state = "done";
+    const step = op === "-"
+      ? fmtParen(a) + " + " + fmtParen(-b) + " = " + fmt(result)
+      : fmtParen(a) + " + " + fmtParen(b) + " = " + fmt(result);
+    setFeedback("", "La soluzione è " + fmt(result) + ".", step);
+    $("solutionBtn").hidden = true;
+    render();
+  }
+
+  function press(k) {
+    if (state === "done") return;
+    if (state === "wrong") state = "input";
+    if (k === "check") return check();
+    if (k === "del") {
+      if (digits) digits = digits.slice(0, -1); else sign = "";
+    } else if (k === "sign") {
+      sign = sign === "-" ? "+" : "-";
+    } else if (k === "-" ) {
+      sign = "-";
+    } else if (k === "+") {
+      sign = "+";
+    } else if (/^\d$/.test(k)) {
+      if (digits.length < 2) digits = (digits === "0" ? "" : digits) + k;
+    }
+    render();
+  }
+
+  document.querySelectorAll(".pad .key").forEach(btn => {
+    btn.addEventListener("click", () => press(btn.dataset.k));
+  });
+  $("nextBtn").addEventListener("click", newExercise);
+  $("solutionBtn").addEventListener("click", showSolution);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key;
+    if (/^\d$/.test(k) || k === "-" || k === "+") { press(k); e.preventDefault(); }
+    else if (k === "Backspace") { press("del"); e.preventDefault(); }
+    else if (k === "Enter") {
+      e.preventDefault();
+      if (state === "done") newExercise(); else press("check");
+    }
+  });
+
+  $("bar").innerHTML = "<i></i>".repeat(GOAL);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) renderGoal(); });
+  renderGoal();
+  newExercise();
+})();
+</script>
+
+</body>
+</html>
